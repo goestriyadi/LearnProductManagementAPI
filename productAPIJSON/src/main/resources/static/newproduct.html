@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>New Product</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#productForm').on('submit', function(event) {
+                event.preventDefault();
+
+                var formData = {
+                    'code': $('#code').val(),
+                    'name': $('#name').val(),
+                    'category': $('#category').val(),
+                    'brand': $('#brand').val(),
+                    'type': $('#type').val(),
+                    'description': $('#description').val()
+                };
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'http://localhost:8080/api/products',
+                    data: JSON.stringify(formData),
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    success: function(response) {
+                        $('#successMessage').show();
+                        $('#errorMessage').hide();
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        $('#errorMessage').show();
+                        $('#successMessage').hide();
+                    }
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>New Product</h1>
+
+    <form id="productForm">
+        <label for="code">Code:</label>
+        <input type="text" id="code" name="code" required><br>
+
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required><br>
+
+        <label for="category">Category:</label>
+        <input type="text" id="category" name="category" required><br>
+
+        <label for="brand">Brand:</label>
+        <input type="text" id="brand" name="brand" required><br>
+
+        <label for="type">Type:</label>
+        <input type="text" id="type" name="type" required><br>
+
+        <label for="description">Description:</label>
+        <input type="text" id="description" name="description" required><br>
+
+        <input type="submit" value="Submit">
+    </form>
+
+    <div id="successMessage" style="display:none;color:green">
+        Product created successfully.
+    </div>
+
+    <div id="errorMessage" style="display:none;color:red">
+        Error creating product.
+    </div>
+</body>
+</html>

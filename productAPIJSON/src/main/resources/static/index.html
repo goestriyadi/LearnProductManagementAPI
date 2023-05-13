@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Product List</title>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css">
+</head>
+<body>
+    <h1>Product List</h1>
+    <table id="productTable" class="display" style="width:100%">
+        <thead>
+            <tr>
+                <th>Code</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Brand</th>
+                <th>Type</th>
+                <th>Description</th>
+                <th>Update</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#productTable').DataTable({
+                'ajax': {
+                    'url': 'http://localhost:8080/api/products',
+                    'dataSrc': 'content'
+                },
+                'columns': [
+                    {'data': 'code'},
+                    {'data': 'name'},
+                    {'data': 'category'},
+                    {'data': 'brand'},
+                    {'data': 'type'},
+                    {'data': 'description'},
+                    {
+                        'data': null,
+                        'render': function(data, type, row) {
+                            return '<button class="update-button" data-code="' + row.code + '">Update</button>';
+                        }
+                    }
+                ],
+                'paging': true,
+                'pageLength': 10
+            });
+
+            // Add click event listener to the update button
+            $('#productTable tbody').on('click', 'button.update-button', function() {
+                var code = $(this).data('code');
+             // Show a popup to update the product
+                var popupHtml = '<div id="update-popup">' +
+                    '<h2>Update Product</h2>' +
+                    '<form id="update-form">' +
+                    '<label for="name-input">Name:</label>' +
+                    '<input type="text" id="name-input" name="name" required><br>' +
+                    '<label for="category-input">Category:</label>' +
+                    '<input type="text" id="category-input" name="category" required><br>' +
+                    '<label for="brand-input">Brand:</label>' +
+                    '<input type="text" id="brand-input" name="brand" required><br>' +
+                    '<label for="type-input">Type:</label>' +
+                    '<input type="text" id="type-input" name="type" required><br>' +
+                    '<label for="description-input">Description:</label>' +
+                    '<input type="text" id="description-input" name="description" required><br>' +
+                    '<input type="submit" value="Update">' +
+                    '</form>' +
+                    '</div>';
+
+                $('body').append(popupHtml);
+
+                // Fill the form with the product data
+                $.getJSON('http://localhost:8080/api/products/' + code, function(data) {
+                    $('#name-input').val(data.name);
+                    $('#category-input').val(data.category);
+                    $('#brand-input').val(data.brand);
+                    $('#type-input').val(data.type);
+                    $('#description-input').val(data.description);
+
+                    // Send a request to update the product
+                    $('#update-form').submit(function(e) {
+                        e.preventDefault();
+                        var updateData = {
+                        	'code': code,
+                            'name': $('#name-input').val(),
+                            'category': $('#category-input').val(),
+                            'brand': $('#brand-input').val(),
+                            'type': $('#type-input').val(),
+                            'description': $('#description-input').val()
+                        };
+                        $.ajax({
+                            url: 'http://localhost:8080/api/products/' + code,
+                            type: 'PUT',
+                            data: JSON.stringify(updateData),
+                            contentType: 'application/json',
+                            success: function(result) {
+                                alert('Product updated successfully');
+                            },
+                            error: function(xhr, status, error) {
+                                alert('Error updating product: ' + error);
+                            }
+                        });
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
